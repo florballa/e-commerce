@@ -5,10 +5,10 @@ import com.ecommerce.shop.Model.ProductModel;
 import com.ecommerce.shop.Repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
@@ -23,9 +23,9 @@ public class CartController {
     private ProductRepository productRepository;
 
     @RequestMapping("/addToCart")
-    public ModelAndView addCart(@RequestParam Long id, HttpSession session){
+    public ResponseEntity<CartModel> addCart(@RequestParam Long id, HttpSession session){
 
-        ModelAndView modelAndView = new ModelAndView("cart");
+
         ProductModel product = productRepository.getById(id);
         CartModel cart = new CartModel();
         List<CartModel> list = (List<CartModel>) session.getAttribute("cart");
@@ -35,11 +35,9 @@ public class CartController {
         if(product != null){
             cart.ToCart(product);
             BigDecimal total = addToCart(list, cart);
-            modelAndView.addObject("total", total);
             session.setAttribute("cart", list);
         }
-        modelAndView.addObject("listCart", list);
-        return modelAndView;
+        return ResponseEntity.ok().body(cart);
     }
 
     private BigDecimal addToCart(List<CartModel> list, CartModel cart){
@@ -60,16 +58,13 @@ public class CartController {
     }
 
     @RequestMapping("shop/cart/remove")
-    private ModelAndView removeCart(@RequestParam int id, HttpSession session) {
-        ModelAndView mav = new ModelAndView("shop/cart");
+    private ResponseEntity<String> removeCart(@RequestParam int id, HttpSession session) {
         List<CartModel> list = (List<CartModel>) session.getAttribute("cart");
         if (list != null) {
             BigDecimal total = removeCartItem(list, id);
-            mav.addObject("total", total);
             session.setAttribute("cart", list);
         }
-        mav.addObject("listCart", list);
-        return mav;
+        return ResponseEntity.ok().body("Remove item(s)!");
     }
 
     private BigDecimal removeCartItem(List<CartModel> list, int id) {
@@ -88,18 +83,15 @@ public class CartController {
     }
 
     @RequestMapping("/shop/cart/update")
-    public ModelAndView updateCart(@RequestParam int id,
+    public ResponseEntity<List<CartModel>> updateCart(@RequestParam int id,
                                    @RequestParam int quantity,
                                    HttpSession session) {
-        ModelAndView mav = new ModelAndView("shop/cart");
         List<CartModel> list = (List<CartModel>) session.getAttribute("cart");
         if (list != null) {
             BigDecimal total = updateCartItem(list, id, quantity);
-            mav.addObject("total", total);
             session.setAttribute("cart", list);
         }
-        mav.addObject("listCart", list);
-        return mav;
+        return ResponseEntity.ok().body(list);
     }
 
     private BigDecimal updateCartItem(List<CartModel> list, int id, int quantity) {
@@ -112,6 +104,5 @@ public class CartController {
         }
         return total;
     }
-
 
 }

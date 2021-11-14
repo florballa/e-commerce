@@ -55,7 +55,7 @@ public class UserModel implements UserDetails {
         Set<RoleModel> roles = getRole();
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        for(RoleModel role : roles){
+        for (RoleModel role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getName()));
         }
 
@@ -96,7 +96,7 @@ public class UserModel implements UserDetails {
         return getFirstName() + " " + getLastName();
     }
 
-    public void addRole(RoleModel role){
+    public void addRole(RoleModel role) {
         this.role.add(role);
     }
 

@@ -5,12 +5,13 @@ import com.ecommerce.shop.Model.ProductModel;
 import com.ecommerce.shop.Service.CategoryService;
 import com.ecommerce.shop.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,17 +26,13 @@ public class ProductController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ModelAndView findAll(Model model,
-                                @RequestParam(defaultValue = "0") Integer pageNo,
-                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                @RequestParam(defaultValue = "id") String sortBy) {
+    public ResponseEntity<List<ProductModel>> findAll(Model model,
+                                                      @RequestParam(defaultValue = "0") Integer pageNo,
+                                                      @RequestParam(defaultValue = "10") Integer pageSize,
+                                                      @RequestParam(defaultValue = "id") String sortBy) {
 
         List<ProductModel> products = productService.getAllProducts(pageNo, pageSize, sortBy);
-        model.addAttribute("products", products);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("home");
-        return modelAndView;
+        return ResponseEntity.ok().body(products);
     }
 
     @GetMapping(path = "get/{productId}")
@@ -43,46 +40,10 @@ public class ProductController {
         return productService.findById(productId);
     }
 
-    @GetMapping("/addProductTemplate")
-    public ModelAndView saveProductTemplate(ProductModel product, Model model) {
-
-        List<ProductCategoriesModel> categoriesList = categoryService.findAll();
-
-        model.addAttribute("product", product);
-        model.addAttribute("categoriesList", categoriesList);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("save_product");
-
-        return modelAndView;
-    }
-
-    @GetMapping("/updateProductTemplate/{productId}")
-    public ModelAndView updateProductTemplate(@PathVariable("productId") Long productId, Model model) {
-
-        Optional<ProductModel> product = findById(productId);
-        List<ProductCategoriesModel> categoriesList = categoryService.findAll();
-
-        model.addAttribute("product", product.get());
-        model.addAttribute("categoriesList", categoriesList);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("save_product");
-
-        return modelAndView;
-    }
-
     @PostMapping("/addProduct")
-    public RedirectView addProduct(ProductModel product, Model model) {
-
-        List<ProductCategoriesModel> categoriesList = categoryService.findAll();
-
-        model.addAttribute("product", product);
-        model.addAttribute("categoriesList", categoriesList);
-
-        productService.addNewProduct(product);
-
-        return new RedirectView("/products");
+    public ResponseEntity<ProductModel> addProduct(@RequestBody ProductModel product) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/products/addProduct").toUriString());
+        return ResponseEntity.created(uri).body(productService.addNewProduct(product));
     }
 
     @PutMapping("/update/{productId}")

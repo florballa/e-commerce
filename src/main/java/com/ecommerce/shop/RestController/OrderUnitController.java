@@ -5,10 +5,11 @@ import com.ecommerce.shop.Model.OrderUnitModel;
 import com.ecommerce.shop.Model.ProductModel;
 import com.ecommerce.shop.Service.OrderUnitService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,13 +21,11 @@ public class OrderUnitController {
     private OrderUnitService unitService;
 
     @GetMapping
-    public ModelAndView findAll(Model model) {
-        List<OrderUnitModel> units = unitService.findAll();
-        model.addAttribute("units", units);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("home");
-        return modelAndView;
+    public ResponseEntity<List<OrderUnitModel>> findAll(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(defaultValue = "id") String sortBy) {
+        List<OrderUnitModel> units = unitService.findAll(pageNo, pageSize, sortBy);
+        return ResponseEntity.ok().body(units);
     }
 
     @GetMapping(path = "get/{unitId}")
@@ -35,9 +34,9 @@ public class OrderUnitController {
     }
 
     @PostMapping("/addUnit")
-    public OrderUnitModel addUnit(OrderUnitModel unit) {
-        unitService.addNewOrderUnit(unit);
-        return unit;
+    public ResponseEntity<OrderUnitModel> addUnit(@RequestBody OrderUnitModel unit) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/order/units/addUnits").toUriString());
+        return ResponseEntity.created(uri).body(unitService.addNewOrderUnit(unit));
     }
 
     @PutMapping(path = "{unitId}")

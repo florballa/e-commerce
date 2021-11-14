@@ -4,11 +4,11 @@ import com.ecommerce.shop.Model.ProductCategoriesModel;
 import com.ecommerce.shop.Model.ProductModel;
 import com.ecommerce.shop.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,13 +20,11 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ModelAndView findAll(Model model) {
-        List<ProductCategoriesModel> categories = categoryService.findAll();
-        model.addAttribute("categories", categories);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("list_categories");
-        return modelAndView;
+    public ResponseEntity<List<ProductCategoriesModel>> findAll(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                                @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                @RequestParam(defaultValue = "id") String sortBy) {
+        List<ProductCategoriesModel> categories = categoryService.findAll(pageNo, pageSize, sortBy);
+        return ResponseEntity.ok().body(categories);
     }
 
     @GetMapping(path = "get/{categoryId}")
@@ -34,35 +32,10 @@ public class CategoryController {
         return categoryService.findById(categoryId);
     }
 
-    @GetMapping("/addCategoryTemplate")
-    public ModelAndView saveCategoryTemplate(ProductCategoriesModel category, Model model) {
-
-        model.addAttribute("category", category);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("save_category");
-
-        return modelAndView;
-    }
-
-    @GetMapping("/updateCategoryTemplate/{categoryId}")
-    public ModelAndView updateCategoryTemplate(@PathVariable("categoryId") Long categoryId, Model model) {
-
-        Optional<ProductCategoriesModel> category = findById(categoryId);
-
-        model.addAttribute("category", category);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("save_category");
-
-        return modelAndView;
-    }
-
     @PostMapping("/addCategory")
-    public RedirectView addCategory(ProductCategoriesModel category) {
-        categoryService.addNewCategory(category);
-
-        return new RedirectView("/categories");
+    public ResponseEntity<ProductCategoriesModel> addCategory(ProductCategoriesModel category) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/categories/addCategory").toUriString());
+        return ResponseEntity.created(uri).body(categoryService.addNewCategory(category));
     }
 
     @PutMapping(path = "{categoryId}")
@@ -71,7 +44,6 @@ public class CategoryController {
                                @RequestParam(required = false) List<ProductModel> products) {
 
         categoryService.updateCategory(categoryId, name, products);
-
     }
 
     @DeleteMapping(path = "/delete/{categoryId}")

@@ -4,10 +4,11 @@ import com.ecommerce.shop.Model.OrderModel;
 import com.ecommerce.shop.Model.UserModel;
 import com.ecommerce.shop.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,17 +20,12 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ModelAndView findAll(Model model,
-                                @RequestParam(defaultValue = "0") Integer pageNo,
-                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                @RequestParam(defaultValue = "id") String sortBy) {
+    public ResponseEntity<List<OrderModel>> findAll(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                    @RequestParam(defaultValue = "10") Integer pageSize,
+                                                    @RequestParam(defaultValue = "id") String sortBy) {
 
         List<OrderModel> orders = orderService.getAllOrders(pageNo, pageSize, sortBy);
-        model.addAttribute("orders", orders);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("home");
-        return modelAndView;
+        return ResponseEntity.ok().body(orders);
     }
 
     @GetMapping(path = "get/{orderId}")
@@ -38,9 +34,9 @@ public class OrderController {
     }
 
     @PostMapping("/addOrder")
-    public OrderModel addOrder(OrderModel order) {
-        orderService.addNewOrder(order);
-        return order;
+    public ResponseEntity<OrderModel> addOrder(@RequestBody OrderModel order) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/orders/addOrder").toUriString());
+        return ResponseEntity.created(uri).body(orderService.addNewOrder(order));
     }
 
     @PutMapping(path = "{orderId}")
@@ -48,13 +44,11 @@ public class OrderController {
                             @RequestParam(required = false) UserModel user) {
 
         orderService.updateOrder(orderId, user);
-
     }
 
     @DeleteMapping(path = "/delete/{orderId}")
     public void deleteOrder(@PathVariable("orderId") Long orderId) {
         orderService.deleteOrder(orderId);
     }
-
 
 }
