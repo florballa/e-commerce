@@ -23,9 +23,7 @@ public class CartItemModel {
     @JoinColumn(name = "product_id")
     private ProductModel product;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private UserModel user;
+    private Long userId;
 
     private Integer quantity;
 

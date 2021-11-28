@@ -28,7 +28,7 @@ public class ShoppingCartController {
     public ResponseEntity<List<CartItemModel>> showShoppingCart(Principal principal) {
 
         UserModel user = userService.findByEmail(principal.getName());
-        List<CartItemModel> cartItems = ss.listCartItems(user);
+        List<CartItemModel> cartItems = ss.listCartItems(user.getId());
 
         return ResponseEntity.ok().body(cartItems);
     }
@@ -36,10 +36,10 @@ public class ShoppingCartController {
     @PostMapping("/add/{productId}/{quantity}")
     public ResponseEntity<String> addProductToCart(@PathVariable("productId") Long productId,
                                                    @PathVariable("quantity") Integer quantity,
-                                                   Principal principal) {
+                                                   Principal principal) throws Exception {
 
         UserModel user = userService.findByEmail(principal.getName());
-        Integer addedQuantity = ss.addProduct(productId, quantity, user);
+        Integer addedQuantity = ss.addProduct(productId, quantity, user.getId());
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/shopping/cart/add/{productId}/{quantity}").toUriString());
         return ResponseEntity.created(uri).body(addedQuantity + " added item(s)");
@@ -61,7 +61,7 @@ public class ShoppingCartController {
                                                         Principal principal) {
 
         UserModel user = userService.findByEmail(principal.getName());
-        ss.removeProductFromCart(user, productId);
+        ss.removeProductFromCart(user.getId(), productId);
         return ResponseEntity.ok().body("Product has been removed from your shopping cart!");
     }
 }
