@@ -8,6 +8,7 @@ import com.ecommerce.shop.Repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class ShoppingCartService {
         Integer addedQuantity = quantity;
 
         ProductModel product = productRepository.findById(productId).get();
+        product.setStock(product.getStock() - quantity);
 
         CartItemModel cartItem = cr.findByUserAndProduct(user, product);
 
@@ -65,9 +67,9 @@ public class ShoppingCartService {
     }
 
     @Transactional
-    public void removeProductFromCart(Long userId, Long productId){
+    public void removeProductFromCart(UserModel user, Long productId){
         log.info("Remove quantity");
-        cr.deleteByUserAndProduct(userId, productId);
+        cr.deleteByUserAndProduct(user, productId);
     }
 
 }

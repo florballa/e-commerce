@@ -6,6 +6,7 @@ import com.ecommerce.shop.Model.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,5 +24,5 @@ public interface CartItemRepository extends JpaRepository<CartItemModel, Long> {
 
     @Query("DELETE FROM CartItemModel c WHERE c.user.id = ?1 AND c.product.id = ?2 ")
     @Modifying
-    public void deleteByUserAndProduct(Long userId, Long productId);
+    public void deleteByUserAndProduct(UserModel user, Long productId);
 }
