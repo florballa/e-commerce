@@ -17,9 +17,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -54,6 +56,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
+    public UserModel getById(Long id){
+        return userRepository.getById(id);
+    }
+
     public List<UserModel> getAllUsers(Integer pageNo, Integer pageSize, String sortBy) {
         log.info("Fetching all users");
 
@@ -68,46 +74,52 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public UserModel findById(Long id) {
-        log.info("Find user by ID {}", id);
-        return userRepository.findById(id).get();
-    }
-
     public UserModel signUpUser(UserModel userModel) {
 
         log.info("Sign up user:: {}", userModel);
 
-        UserModel userExists = userRepository.findByEmail(userModel.getEmail());
-        if (userExists.getEmail() != null) {
+        if (userRepository.findExistByEmail(userModel.getEmail())){
             log.error("Email already exists:: {}", userModel.getEmail());
             throw new IllegalStateException("Email taken!");
         }
 
         String encodedPassword = bCryptPasswordEncoder.encode(userModel.getPassword());
         userModel.setPassword(encodedPassword);
+        userModel.setFullName(userModel.getFullName());
 
-        RoleModel role = roleRepository.findByName("Costumer");
-        userModel.addRole(role);
+        if (userModel.getRole().isEmpty()) {
+            RoleModel role = roleRepository.findByName("Customer");
+            userModel.addRole(role);
+        }
 
         userRepository.save(userModel);
-
         return userModel;
-
     }
 
-    public void saveUser(UserModel user) {
+    @Transactional
+    public UserModel editUser(Long id, UserModel user) {
+        UserModel existingUser = userRepository.findById(id).orElseThrow(() -> new IllegalStateException(
+                "User with ID " + id + "does not exist!"
+        ));
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        if (userRepository.findExistByEmail(user.getEmail()) && !Objects.equals(existingUser.getEmail(), user.getEmail())){
+            log.error("Email already exists:: {}", user.getEmail());
+            throw new IllegalStateException("Email taken!");
+        }
+        else
+            existingUser.setEmail(user.getEmail());
+        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        existingUser.setPassword(encodedPassword);
 
-        log.info("Saving new user to DB:: {}", user);
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encodedPassword = encoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-
-        userRepository.save(user);
+        return existingUser;
     }
 
     public List<RoleModel> getRoles() {
         return roleRepository.findAll();
     }
 
+    public void deleteUser(UserModel user){
+        userRepository.delete(user);
+    }
 }

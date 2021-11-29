@@ -3,7 +3,9 @@ package com.ecommerce.shop.Service;
 import com.ecommerce.shop.Model.OrderModel;
 import com.ecommerce.shop.Model.OrderUnitModel;
 import com.ecommerce.shop.Model.ProductModel;
+import com.ecommerce.shop.Repository.OrderRepository;
 import com.ecommerce.shop.Repository.OrderUnitRepository;
+import com.ecommerce.shop.Repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,12 @@ public class OrderUnitService {
 
     @Autowired
     private OrderUnitRepository orderUnitRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public List<OrderUnitModel> findAll(Integer pageNo, Integer pageSize, String sortBy) {
         log.info("Find all order units");

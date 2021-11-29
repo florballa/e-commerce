@@ -2,7 +2,6 @@ package com.ecommerce.shop.Service;
 
 import com.ecommerce.shop.Model.ProductCategoriesModel;
 import com.ecommerce.shop.Model.ProductModel;
-import com.ecommerce.shop.Model.UserModel;
 import com.ecommerce.shop.Repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,15 +50,17 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(Long categoryId, String name, List<ProductModel> products) {
-        log.info("Update Category id {}, name {}, products {}", categoryId, name, products);
+    public ProductCategoriesModel updateCategory(Long categoryId, ProductCategoriesModel updatedCategory) {
+        log.info("Update Category id {}, name {}, products {}", categoryId, updatedCategory.getName(), updatedCategory.getProducts());
         ProductCategoriesModel categoryModel = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalStateException(
                         "Category with ID " + categoryId + "does not exist!"
                 ));
 
-        categoryModel.setName(name);
-        categoryModel.setProducts(products);
+        categoryModel.setName(updatedCategory.getName());
+        categoryModel.setProducts(updatedCategory.getProducts());
+
+        return categoryModel;
     }
 
     public void deleteCategory(Long categoryId) {

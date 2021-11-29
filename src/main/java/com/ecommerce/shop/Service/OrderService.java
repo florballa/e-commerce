@@ -1,8 +1,10 @@
 package com.ecommerce.shop.Service;
 
 import com.ecommerce.shop.Model.OrderModel;
+import com.ecommerce.shop.Model.OrderUnitModel;
 import com.ecommerce.shop.Model.UserModel;
 import com.ecommerce.shop.Repository.OrderRepository;
+import com.ecommerce.shop.Repository.OrderUnitRepository;
 import com.ecommerce.shop.Repository.PaginationAndSorting.OrderPaginationAndSorting;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +30,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderUnitRepository orderUnitRepository;
 
     @Autowired
     private OrderPaginationAndSorting orderPaging;
@@ -47,8 +55,10 @@ public class OrderService {
         return orderRepository.findById(orderId);
     }
 
-    public OrderModel addNewOrder(OrderModel order) {
-        log.info("Add new order:: {}", order);
+    public OrderModel addNewOrder(OrderModel order, UserModel user) {
+        log.info("Add new order:: {}, {}", order, user);
+        order.setOrderDate(new Date());
+        order.setUser(user);
         return orderRepository.save(order);
     }
 
@@ -67,11 +77,16 @@ public class OrderService {
         boolean exists = orderRepository.existsById(orderId);
         if (!exists) {
             throw new IllegalStateException(
-                    "Order with ID " + orderId + "does not exist!"
+                    "Order with ID " + orderId + " does not exist!"
             );
+        } else {
+            List<OrderUnitModel> units  = orderUnitRepository.findByOrderId(orderId);
+
+            for(OrderUnitModel unit : units){
+                orderUnitRepository.delete(unit);
+            }
+
+            orderRepository.deleteById(orderId);
         }
-
-        orderRepository.deleteById(orderId);
     }
-
 }

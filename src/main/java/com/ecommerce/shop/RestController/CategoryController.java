@@ -33,17 +33,16 @@ public class CategoryController {
     }
 
     @PostMapping("/addCategory")
-    public ResponseEntity<ProductCategoriesModel> addCategory(ProductCategoriesModel category) {
+    public ResponseEntity<ProductCategoriesModel> addCategory(@RequestBody ProductCategoriesModel category) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/categories/addCategory").toUriString());
         return ResponseEntity.created(uri).body(categoryService.addNewCategory(category));
     }
 
-    @PutMapping(path = "{categoryId}")
-    public void updateCategory(@PathVariable("categoryId") Long categoryId,
-                               @RequestParam(required = false) String name,
-                               @RequestParam(required = false) List<ProductModel> products) {
+    @PutMapping(path = "/update/{categoryId}")
+    public ResponseEntity<ProductCategoriesModel> updateCategory(@PathVariable("categoryId") Long categoryId,
+                               @RequestBody ProductCategoriesModel categoriesModel) {
 
-        categoryService.updateCategory(categoryId, name, products);
+        return ResponseEntity.ok().body(categoryService.updateCategory(categoryId, categoriesModel));
     }
 
     @DeleteMapping(path = "/delete/{categoryId}")

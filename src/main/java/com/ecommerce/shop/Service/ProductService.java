@@ -59,17 +59,19 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(Long productId, String name, BigDecimal default_price, int stock, String description, ProductCategoriesModel categories) {
-        log.info("Update Product id {}, name {}, price {}, stock {}, description {}, category {}", productId, name, default_price, stock, description, categories);
-        ProductModel productModel = productRepository.findById(productId)
+    public ProductModel updateProduct(Long productId, ProductModel product) {
+        log.info("Update Product id {}, ", productId);
+        ProductModel existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalStateException(
                         "Product with ID " + productId + "does not exist!"
                 ));
-        productModel.setName(name);
-        productModel.setDefaultPrice(default_price);
-        productModel.setStock(stock);
-        productModel.setDescription(description);
-        productModel.setCategories(categories);
+        existingProduct.setName(product.getName());
+        existingProduct.setDefaultPrice(product.getDefaultPrice());
+        existingProduct.setStock(product.getStock());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setCategory(product.getCategory());
+
+        return existingProduct;
     }
 
     public void deleteProduct(Long productId) {
@@ -81,7 +83,6 @@ public class ProductService {
                     "Product with ID " + productId + "does not exist!"
             );
         }
-
         productRepository.deleteById(productId);
     }
 

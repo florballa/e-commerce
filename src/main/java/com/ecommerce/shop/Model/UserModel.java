@@ -1,10 +1,13 @@
 package com.ecommerce.shop.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +21,7 @@ import java.util.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserModel implements UserDetails {
 
     @Id
@@ -30,10 +34,6 @@ public class UserModel implements UserDetails {
     private String password;
     private Boolean locked = false;
     private Boolean enabled = true;
-
-    @OneToMany
-    @JsonManagedReference
-    private List<OrderModel> orders;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

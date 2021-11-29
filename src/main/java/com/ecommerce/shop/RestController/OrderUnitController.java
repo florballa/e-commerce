@@ -35,7 +35,7 @@ public class OrderUnitController {
 
     @PostMapping("/addUnit")
     public ResponseEntity<OrderUnitModel> addUnit(@RequestBody OrderUnitModel unit) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/order/units/addUnits").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/order/units/addUnit").toUriString());
         return ResponseEntity.created(uri).body(unitService.addNewOrderUnit(unit));
     }
 
@@ -47,13 +47,10 @@ public class OrderUnitController {
                            @RequestParam(required = false) float price) {
 
         unitService.updateOrderUnit(unitId, order, product, amount, price);
-
     }
 
     @DeleteMapping(path = "/delete/{unitId}")
     public void deleteUnit(@PathVariable("unitId") Long unitId) {
         unitService.deleteOrderUnit(unitId);
     }
-
-
 }

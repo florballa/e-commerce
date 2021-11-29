@@ -2,11 +2,9 @@ package com.ecommerce.shop.Repository;
 
 import com.ecommerce.shop.Model.CartItemModel;
 import com.ecommerce.shop.Model.ProductModel;
-import com.ecommerce.shop.Model.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

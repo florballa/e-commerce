@@ -1,5 +1,6 @@
 package com.ecommerce.shop.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,7 +24,6 @@ public class ProductModel implements Serializable {
     private int stock;
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private ProductCategoriesModel categories;
+    @OneToOne
+    private ProductCategoriesModel category;
 }

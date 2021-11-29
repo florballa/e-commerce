@@ -47,15 +47,10 @@ public class ProductController {
     }
 
     @PutMapping("/update/{productId}")
-    public void updateProduct(@PathVariable("productId") Long productId,
-                              @RequestParam(required = false) String name,
-                              @RequestParam(required = false) BigDecimal default_price,
-                              @RequestParam(required = false) int stock,
-                              @RequestParam(required = false) String description,
-                              @RequestParam(required = false) ProductCategoriesModel categories) {
+    public ResponseEntity<ProductModel> updateProduct(@PathVariable("productId") Long productId,
+                              @RequestBody ProductModel product) {
 
-        productService.updateProduct(productId, name, default_price, stock, description, categories);
-
+        return ResponseEntity.ok().body(productService.updateProduct(productId, product));
     }
 
     @DeleteMapping(path = "/delete/{productId}")
